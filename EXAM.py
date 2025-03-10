@@ -79,16 +79,24 @@ st.subheader("Student Satisfaction Distribution by Department")
 satisfaction_data = data[['Year', 'Student Satisfaction (%)', 'Engineering Enrolled', 'Business Enrolled', 
                           'Arts Enrolled', 'Science Enrolled']]
 
-# Choose department based on the user's selection
+# Filter the data for the selected department
 department_col = f'{department_selection} Enrolled'
 department_satisfaction_data = satisfaction_data[satisfaction_data[department_col] > 0]
 
+# Melt the data to reshape it for the boxplot
+department_satisfaction_data_melted = pd.melt(department_satisfaction_data,
+                                              id_vars=['Year'],
+                                              value_vars=['Student Satisfaction (%)'],
+                                              var_name='Metric',
+                                              value_name='Satisfaction')
+
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.boxplot(data=department_satisfaction_data, x=department_selection, y="Student Satisfaction (%)", ax=ax)
+sns.boxplot(data=department_satisfaction_data_melted, x='Metric', y='Satisfaction', ax=ax)
 ax.set_title(f"Student Satisfaction Distribution for {department_selection}")
 ax.set_xlabel(department_selection)
 ax.set_ylabel("Satisfaction (%)")
 st.pyplot(fig)
+
 
 # Key Findings & Insights
 st.subheader("Key Findings and Actionable Insights")
