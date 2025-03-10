@@ -9,6 +9,9 @@ df = pd.read_csv('university_student_dashboard_data.csv')
 # Clean column names (strip extra spaces)
 df.columns = df.columns.str.strip()
 
+# Check the column names to ensure they are as expected
+st.write(df.columns)
+
 # Sidebar for filters
 st.sidebar.header("Filters")
 terms = st.sidebar.multiselect("Select Term(s)", df['Term'].dropna().unique())
