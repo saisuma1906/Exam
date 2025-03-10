@@ -6,10 +6,6 @@ import seaborn as sns
 df = pd.read_csv('university_student_dashboard_data.csv')
 # Clean column names (strip extra spaces)
 df.columns = df.columns.str.strip()
-# Debug: Show column names and check unique values
-st.write("Columns in dataset:", df.columns)
-st.write("Unique terms:", df['Term'].unique())
-st.write("Unique years:", df['Year'].unique())
 # Sidebar for filters
 st.sidebar.header("Filters")
 terms = st.sidebar.multiselect("Select Term(s)", df['Term'].dropna().unique())
@@ -49,4 +45,28 @@ sns.lineplot(data=filtered_data, x='Year', y='Retention Rate (%)', ax=ax, marker
 ax.set_title("Retention Rate Trend Over Time")
 ax.set_xlabel("Year")
 ax.set_ylabel("Retention Rate (%)")
+st.pyplot(fig)
+# Visualization 3: Student Satisfaction Trend Over Time
+fig, ax = plt.subplots()
+sns.lineplot(data=filtered_data, x='Year', y='Student Satisfaction (%)', ax=ax, marker='o', color='orange')
+ax.set_title("Student Satisfaction Trend Over Time")
+ax.set_xlabel("Year")
+ax.set_ylabel("Satisfaction (%)")
+st.pyplot(fig)
+# Visualization 4: Comparison of Enrollment by Term
+term_enrollment_data = filtered_data.groupby('Term')[['Applications', 'Admitted', 'Enrolled']].sum()
+fig, ax = plt.subplots()
+term_enrollment_data.plot(kind='bar', ax=ax)
+ax.set_title("Comparison of Applications, Admissions, and Enrollments by Term")
+ax.set_xlabel("Term")
+ax.set_ylabel("Count")
+plt.xticks(rotation=0)
+st.pyplot(fig)
+# Visualization 5: Retention Rate vs Satisfaction per Department
+department_data = filtered_data[['Retention Rate (%)', 'Student Satisfaction (%)', 'Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled']]
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.scatterplot(data=department_data, x='Retention Rate (%)', y='Student Satisfaction (%)', hue='Engineering Enrolled', size='Engineering Enrolled', sizes=(20, 200), ax=ax)
+ax.set_title("Retention Rate vs Satisfaction per Department")
+ax.set_xlabel("Retention Rate (%)")
+ax.set_ylabel("Student Satisfaction (%)")
 st.pyplot(fig)
