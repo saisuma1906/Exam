@@ -2,12 +2,19 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
+# Display the column names to check if 'Department' exists
+st.write("Column names in dataset:", df.columns)
 # Streamlit layout
 st.set_page_config(page_title="University Admissions and Student Satisfaction Dashboard", layout="wide")
 st.title("University Admissions and Student Satisfaction Dashboard")
 # Sidebar filters
 st.sidebar.header("Filters")
-department_filter = st.sidebar.multiselect("Select Departments", df['Department'].unique(), default=df['Department'].unique())
+# Check if 'Department' column exists and use it, otherwise print an error message
+if 'Department' in df.columns:
+    department_filter = st.sidebar.multiselect("Select Departments", df['Department'].unique(), default=df['Department'].unique())
+else:
+    st.error("The 'Department' column is not found in the dataset. Please check the column name.")
+
 term_filter = st.sidebar.multiselect("Select Terms", df['Term'].unique(), default=df['Term'].unique())
 year_filter = st.sidebar.slider("Select Year Range", min_value=int(df['Year'].min()), max_value=int(df['Year'].max()), value=(int(df['Year'].min()), int(df['Year'].max())))
 # Filter dataset based on selected filters
@@ -64,34 +71,4 @@ term_comparison = filtered_data.groupby(['Year', 'Term'])[['Applications', 'Admi
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.lineplot(data=term_comparison, x='Year', y='Applications', hue='Term', marker='o', label="Applications", ax=ax)
 sns.lineplot(data=term_comparison, x='Year', y='Admitted', hue='Term', marker='s', label="Admissions", ax=ax)
-sns.lineplot(data=term_comparison, x='Year', y='Enrolled', hue='Term', marker='^', label="Enrollments", ax=ax)
-plt.title("Comparison Between Spring vs. Fall Term Trends")
-plt.xlabel("Year")
-plt.ylabel("Count")
-plt.legend(title="Metrics")
-st.pyplot(fig)
-# Compare Trends Between Departments, Retention Rates, and Satisfaction Levels
-st.header("Compare Trends Between Departments, Retention Rates, and Satisfaction Levels")
-# Create a line plot for retention and satisfaction rates by department
-dept_comparison = filtered_data.groupby(['Year', 'Department'])[['Retention Rate (%)', 'Student Satisfaction (%)']].mean().reset_index()
-# Plot Retention Rates and Satisfaction Scores by Department
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(data=dept_comparison, x='Year', y='Retention Rate (%)', hue='Department', marker='o', label="Retention Rate", ax=ax)
-sns.lineplot(data=dept_comparison, x='Year', y='Student Satisfaction (%)', hue='Department', marker='s', label="Satisfaction Score", ax=ax)
-plt.title("Retention Rates and Satisfaction Scores by Department")
-plt.xlabel("Year")
-plt.ylabel("Value (%) / Score")
-plt.legend(title="Metrics")
-st.pyplot(fig)
-# Key Findings and Actionable Insights
-st.header("Key Findings and Actionable Insights")
-# Display insights based on trends
-if total_apps.max() > 10000:
-    st.write("🔔 **Actionable Insight**: The university has seen a significant increase in applications, especially in certain terms. Focus on improving admissions efficiency during peak times.")
-    
-if retention_data['Retention Rate (%)'].mean() < 75:
-    st.write("🔔 **Actionable Insight**: Retention rates are lower than expected. It might be valuable to focus on improving student support and engagement to reduce drop-out rates.")
-
-if satisfaction_data['Student Satisfaction (%)'].mean() < 3.5:
-    st.write("🔔 **Actionable Insight**: Student satisfaction is below average. Consider enhancing student services, academic offerings, and campus life to improve satisfaction.")
-
+sns.lineplot(data=term_comparison, x='Year', y='Enrolled',
