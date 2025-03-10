@@ -9,10 +9,15 @@ df = pd.read_csv('university_student_dashboard_data.csv')
 # Clean column names (strip extra spaces)
 df.columns = df.columns.str.strip()
 
+# Debug: Show column names and check unique values
+st.write("Columns in dataset:", df.columns)
+st.write("Unique terms:", df['Term'].unique())
+st.write("Unique years:", df['Year'].unique())
+
 # Sidebar for filters
 st.sidebar.header("Filters")
-terms = st.sidebar.multiselect("Select Term(s)", df['Term'].unique())
-years = st.sidebar.multiselect("Select Year(s)", df['Year'].unique())
+terms = st.sidebar.multiselect("Select Term(s)", df['Term'].dropna().unique())
+years = st.sidebar.multiselect("Select Year(s)", df['Year'].dropna().unique())
 
 # Filter data based on user input
 filtered_data = df[
