@@ -1,77 +1,58 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the dataset
 df = pd.read_csv('university_student_dashboard_data.csv')
 
-# Set Streamlit page title
-st.set_page_config(page_title="University Dashboard", layout="wide")
-
-# Dashboard Title
-st.title("University Dashboard: Admissions, Retention, and Satisfaction")
+# Clean column names (strip extra spaces)
+df.columns = df.columns.str.strip()
 
 # Sidebar for filters
 st.sidebar.header("Filters")
 terms = st.sidebar.multiselect("Select Term(s)", df['Term'].unique())
 years = st.sidebar.multiselect("Select Year(s)", df['Year'].unique())
-departments = st.sidebar.multiselect("Select Department(s)", df['Department'].unique())
 
 # Filter data based on user input
 filtered_data = df[
     (df['Term'].isin(terms) if terms else True) &
-    (df['Year'].isin(years) if years else True) &
-    (df['Department'].isin(departments) if departments else True)
+    (df['Year'].isin(years) if years else True)
 ]
 
-# Metrics & KPIs
-st.header("Metrics & KPIs")
+# Display filtered data
+st.write(filtered_data)
 
-# Total Applications, Admissions, and Enrollments per Term
-st.subheader("Total Applications, Admissions, and Enrollments")
-applications = filtered_data.groupby('Term')['Applications'].sum()
-admissions = filtered_data.groupby('Term')['Admissions'].sum()
-enrollments = filtered_data.groupby('Term')['Enrollments'].sum()
+# Show key metrics
+st.header("Key Metrics")
+total_applications = filtered_data['Applications'].sum()
+total_admitted = filtered_data['Admitted'].sum()
+total_enrolled = filtered_data['Enrolled'].sum()
+avg_retention_rate = filtered_data['Retention Rate (%)'].mean()
+avg_satisfaction = filtered_data['Student Satisfaction (%)'].mean()
 
-metrics = pd.DataFrame({
-    'Applications': applications,
-    'Admissions': admissions,
-    'Enrollments': enrollments
-})
+st.write(f"**Total Applications**: {total_applications}")
+st.write(f"**Total Admitted**: {total_admitted}")
+st.write(f"**Total Enrolled**: {total_enrolled}")
+st.write(f"**Average Retention Rate**: {avg_retention_rate:.2f}%")
+st.write(f"**Average Student Satisfaction**: {avg_satisfaction:.2f}%")
 
-st.write(metrics)
+# Visualization 1: Total Enrolled by Department
+department_columns = ['Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled']
+department_data = filtered_data[department_columns].sum()
 
-# Retention Rate Trends over Time
-st.subheader("Retention Rate Trends")
-retention_rate = filtered_data.groupby('Year')['Retention Rate'].mean()
-st.line_chart(retention_rate)
+fig, ax = plt.subplots()
+department_data.plot(kind='bar', ax=ax, color=['blue', 'green', 'red', 'purple'])
+ax.set_title("Total Enrolled by Department")
+ax.set_xlabel("Department")
+ax.set_ylabel("Number of Enrolled Students")
+plt.xticks(rotation=45, ha='right')
+st.pyplot(fig)
 
-# Student Satisfaction Scores Over the Years
-st.subheader("Student Satisfaction Scores Over the Years")
-satisfaction_scores = filtered_data.groupby('Year')['Satisfaction Score'].mean()
-st.line_chart(satisfaction_scores)
-
-# Enrollment Breakdown by Department
-st.subheader("Enrollment Breakdown by Department")
-department_enrollments = filtered_data.groupby('Department')['Enrollments'].sum()
-st.bar_chart(department_enrollments)
-
-# Comparison between Spring vs Fall Term Trends
-st.subheader("Comparison: Spring vs Fall Term")
-spring_fall_comparison = filtered_data[filtered_data['Term'].isin(['Spring', 'Fall'])]
-spring_fall_comparison = spring_fall_comparison.groupby(['Term', 'Year'])['Enrollments'].sum().unstack()
-st.line_chart(spring_fall_comparison)
-
-# Compare Trends Between Departments, Retention Rates, and Satisfaction Levels
-st.subheader("Department Comparison: Retention Rates & Satisfaction Levels")
-department_comparison = filtered_data.groupby('Department')[['Retention Rate', 'Satisfaction Score']].mean()
-st.write(department_comparison)
-
-# Key Findings
-st.header("Key Findings and Actionable Insights")
-st.write("""
-- Use the visualizations to compare trends in admissions and enrollments across terms and departments.
-- Identify patterns in retention rates over time and make adjustments to improve them.
-- Analyze student satisfaction scores across years and departments to identify areas for improvement.
-""")
+# Visualization 2: Retention Rate Trend Over Time
+fig, ax = plt.subplots()
+sns.lineplot(data=filtered_data, x='Year', y='Retention Rate (%)', ax=ax, marker='o')
+ax.set_title("Retention Rate Trend Over Time")
+ax.set_xlabel("Year")
+ax.set_ylabel("Retention Rate (%)")
+st.pyplot(fig)
