@@ -21,7 +21,7 @@ department_selection = st.sidebar.selectbox("Select Department", ['Engineering',
 st.title("University Dashboard")
 st.header("Admissions, Retention, and Satisfaction Insights")
 
-# 1. **Total Applications, Admissions, and Enrollments per Term (Bar Chart)**
+# 1. **Total Applications, Admissions, and Enrollments per Term**
 st.subheader(f"Total Applications, Admissions, and Enrollments for {term_selection} Term")
 term_data = data[data['Term'] == term_selection]
 
@@ -29,21 +29,16 @@ total_apps = term_data['Applications'].sum()
 total_admitted = term_data['Admitted'].sum()
 total_enrolled = term_data['Enrolled'].sum()
 
-# Bar plot for the metrics
-fig, ax = plt.subplots(figsize=(10, 6))
-metrics = ['Total Applications', 'Total Admissions', 'Total Enrolled']
-values = [total_apps, total_admitted, total_enrolled]
-sns.barplot(x=metrics, y=values, ax=ax, palette='Set2')
-ax.set_title(f"Applications, Admissions, and Enrollments ({term_selection} Term)")
-ax.set_ylabel("Count")
-st.pyplot(fig)
+st.metric("Total Applications", f"{total_apps:,}")
+st.metric("Total Admissions", f"{total_admitted:,}")
+st.metric("Total Enrolled", f"{total_enrolled:,}")
 
-# 2. **Retention Rate Trends Over Time (Area Plot)**
-st.subheader("Retention Rate Trends Over Time (Area Plot)")
+# 2. **Retention Rate Trends Over Time**
+st.subheader("Retention Rate Trends Over Time")
 retention_data = data.groupby('Year')['Retention Rate (%)'].mean().reset_index()
 
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.fill_between(retention_data['Year'], retention_data['Retention Rate (%)'], color='skyblue', alpha=0.5)
+sns.lineplot(data=retention_data, x='Year', y='Retention Rate (%)', ax=ax)
 ax.set_title("Retention Rate Trends Over Time")
 ax.set_xlabel("Year")
 ax.set_ylabel("Retention Rate (%)")
