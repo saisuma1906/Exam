@@ -44,16 +44,16 @@ ax.set_xlabel("Year")
 ax.set_ylabel("Retention Rate (%)")
 st.pyplot(fig)
 
-# 3. **Student Satisfaction Scores Over the Years**
-st.subheader("Student Satisfaction Scores Over Time")
+# 3. **Student Satisfaction Scores Over Time** - Using a Bar Plot
+st.subheader("Student Satisfaction Scores Over Time (Bar Plot)")
 satisfaction_data = data.groupby('Year')['Student Satisfaction (%)'].mean().reset_index()
 
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(data=satisfaction_data, x='Year', y='Student Satisfaction (%)', ax=ax)
-ax.set_title("Student Satisfaction Over Time")
+sns.barplot(data=satisfaction_data, x='Year', y='Student Satisfaction (%)', ax=ax, palette='viridis')
+ax.set_title("Student Satisfaction Scores Over Time")
 ax.set_xlabel("Year")
 ax.set_ylabel("Satisfaction (%)")
-st.pyplot(fig)
+st.pyplot(fig
 
 # 4. **Enrollment Breakdown by Department**
 st.subheader(f"Enrollment Breakdown by Department ({term_selection} Term)")
@@ -64,30 +64,28 @@ department_enrollment.plot(kind='pie', autopct='%1.1f%%', ax=ax, startangle=90, 
 ax.set_title(f"Enrollment Distribution by Department - {term_selection} Term")
 st.pyplot(fig)
 
-# 5. **Comparison Between Spring vs. Fall Term Trends**
-st.subheader("Comparison Between Spring vs. Fall Term Trends")
+# 5. **Comparison Between Spring vs. Fall Term Trends** - Using Stacked Bar Chart
+st.subheader("Comparison Between Spring vs. Fall Term Trends (Stacked Bar Chart)")
 term_comparison_data = data.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
 
+# Pivot the data for stacking
+term_comparison_pivot = term_comparison_data.pivot_table(index='Year', columns='Term', values=['Applications', 'Admitted', 'Enrolled'])
+
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(data=term_comparison_data, x='Year', y='Applications', hue='Term', ax=ax)
+term_comparison_pivot['Applications'].plot(kind='bar', stacked=True, ax=ax, color=['#66b3ff', '#ff9999'])
 ax.set_title("Applications Over Time (Spring vs Fall)")
 ax.set_xlabel("Year")
 ax.set_ylabel("Applications")
 st.pyplot(fig)
 
-# 6. **Compare Trends Between Departments, Retention Rates, and Satisfaction Levels**
-st.subheader("Compare Trends Between Departments, Retention Rates, and Satisfaction Levels")
-department_comparison_data = data[['Year', 'Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled', 
-                                   'Retention Rate (%)', 'Student Satisfaction (%)']]
+# 3. **Heatmap for Student Satisfaction Scores by Year and Term**
+st.subheader("Heatmap: Student Satisfaction by Year and Term")
+heatmap_data = data.pivot_table(index='Year', columns='Term', values='Student Satisfaction (%)', aggfunc='mean')
 
-# Plot department trends for enrollments
 fig, ax = plt.subplots(figsize=(10, 6))
-department_comparison_data.set_index('Year')[['Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled']].plot(ax=ax)
-ax.set_title("Department Enrollment Trends Over Time")
-ax.set_xlabel("Year")
-ax.set_ylabel("Enrollments")
+sns.heatmap(heatmap_data, annot=True, cmap='coolwarm', ax=ax, cbar_kws={'label': 'Satisfaction (%)'})
+ax.set_title("Student Satisfaction Scores Heatmap (Year vs Term)")
 st.pyplot(fig)
-
 # Plot retention rates
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.lineplot(data=department_comparison_data, x='Year', y='Retention Rate (%)', ax=ax)
