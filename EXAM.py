@@ -21,7 +21,7 @@ department_selection = st.sidebar.selectbox("Select Department", ['Engineering',
 st.title("University Dashboard")
 st.header("Admissions, Retention, and Satisfaction Insights")
 
-# 1. **Total Applications, Admissions, and Enrollments per Term**
+# 1. **Total Applications, Admissions, and Enrollments per Term (Bar Chart)**
 st.subheader(f"Total Applications, Admissions, and Enrollments for {term_selection} Term")
 term_data = data[data['Term'] == term_selection]
 
@@ -29,33 +29,38 @@ total_apps = term_data['Applications'].sum()
 total_admitted = term_data['Admitted'].sum()
 total_enrolled = term_data['Enrolled'].sum()
 
-st.metric("Total Applications", f"{total_apps:,}")
-st.metric("Total Admissions", f"{total_admitted:,}")
-st.metric("Total Enrolled", f"{total_enrolled:,}")
+# Bar plot for the metrics
+fig, ax = plt.subplots(figsize=(10, 6))
+metrics = ['Total Applications', 'Total Admissions', 'Total Enrolled']
+values = [total_apps, total_admitted, total_enrolled]
+sns.barplot(x=metrics, y=values, ax=ax, palette='Set2')
+ax.set_title(f"Applications, Admissions, and Enrollments ({term_selection} Term)")
+ax.set_ylabel("Count")
+st.pyplot(fig)
 
-# 2. **Retention Rate Trends Over Time**
-st.subheader("Retention Rate Trends Over Time")
+# 2. **Retention Rate Trends Over Time (Area Plot)**
+st.subheader("Retention Rate Trends Over Time (Area Plot)")
 retention_data = data.groupby('Year')['Retention Rate (%)'].mean().reset_index()
 
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(data=retention_data, x='Year', y='Retention Rate (%)', ax=ax)
+ax.fill_between(retention_data['Year'], retention_data['Retention Rate (%)'], color='skyblue', alpha=0.5)
 ax.set_title("Retention Rate Trends Over Time")
 ax.set_xlabel("Year")
 ax.set_ylabel("Retention Rate (%)")
 st.pyplot(fig)
 
-# 3. **Student Satisfaction Scores Over Time** - Using a Bar Plot
-st.subheader("Student Satisfaction Scores Over Time (Bar Plot)")
+# 3. **Student Satisfaction Scores Over Time (Bar Plot)**
+st.subheader("Student Satisfaction Scores Over Time")
 satisfaction_data = data.groupby('Year')['Student Satisfaction (%)'].mean().reset_index()
 
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.barplot(data=satisfaction_data, x='Year', y='Student Satisfaction (%)', ax=ax, palette='viridis')
-ax.set_title("Student Satisfaction Scores Over Time")
+ax.set_title("Student Satisfaction Over Time")
 ax.set_xlabel("Year")
 ax.set_ylabel("Satisfaction (%)")
-st.pyplot(fig
+st.pyplot(fig)
 
-# 4. **Enrollment Breakdown by Department**
+# 4. **Enrollment Breakdown by Department (Pie Chart)**
 st.subheader(f"Enrollment Breakdown by Department ({term_selection} Term)")
 department_enrollment = term_data[['Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled']].sum()
 
@@ -64,8 +69,8 @@ department_enrollment.plot(kind='pie', autopct='%1.1f%%', ax=ax, startangle=90, 
 ax.set_title(f"Enrollment Distribution by Department - {term_selection} Term")
 st.pyplot(fig)
 
-# 5. **Comparison Between Spring vs. Fall Term Trends** - Using Stacked Bar Chart
-st.subheader("Comparison Between Spring vs. Fall Term Trends (Stacked Bar Chart)")
+# 5. **Comparison Between Spring vs. Fall Term Trends (Stacked Bar Chart)**
+st.subheader("Comparison Between Spring vs. Fall Term Trends")
 term_comparison_data = data.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
 
 # Pivot the data for stacking
@@ -78,37 +83,26 @@ ax.set_xlabel("Year")
 ax.set_ylabel("Applications")
 st.pyplot(fig)
 
-# 3. **Heatmap for Student Satisfaction Scores by Year and Term**
-st.subheader("Heatmap: Student Satisfaction by Year and Term")
-heatmap_data = data.pivot_table(index='Year', columns='Term', values='Student Satisfaction (%)', aggfunc='mean')
+# 6. **Compare Trends Between Departments, Retention Rates, and Satisfaction Levels (Heatmap)**
+st.subheader("Compare Trends Between Departments, Retention Rates, and Satisfaction Levels")
 
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.heatmap(heatmap_data, annot=True, cmap='coolwarm', ax=ax, cbar_kws={'label': 'Satisfaction (%)'})
-ax.set_title("Student Satisfaction Scores Heatmap (Year vs Term)")
-st.pyplot(fig)
-# Plot retention rates
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(data=department_comparison_data, x='Year', y='Retention Rate (%)', ax=ax)
-ax.set_title("Retention Rate Trends Over Time")
-ax.set_xlabel("Year")
-ax.set_ylabel("Retention Rate (%)")
-st.pyplot(fig)
+# Department comparison for heatmap
+department_comparison_data = data[['Year', 'Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled', 
+                                   'Retention Rate (%)', 'Student Satisfaction (%)']]
 
-# Plot satisfaction scores
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(data=department_comparison_data, x='Year', y='Student Satisfaction (%)', ax=ax)
-ax.set_title("Student Satisfaction Trends Over Time")
-ax.set_xlabel("Year")
-ax.set_ylabel("Satisfaction (%)")
+# Plot heatmap for satisfaction and retention
+fig, ax = plt.subplots(figsize=(12, 8))
+sns.heatmap(department_comparison_data.corr(), annot=True, cmap='coolwarm', ax=ax, cbar_kws={'label': 'Correlation'})
+ax.set_title("Correlation Heatmap Between Departments, Retention, and Satisfaction")
 st.pyplot(fig)
 
 # Key Findings & Insights
 st.subheader("Key Findings and Actionable Insights")
 st.write("""
-    - **Total Applications, Admissions, and Enrollments**: Visualize trends in admissions, helping to identify peak periods.
-    - **Retention Rate Trends**: Analyze retention rates over the years to see the overall success of keeping students enrolled.
-    - **Satisfaction Scores**: Show satisfaction trends, which could point to areas needing attention for improving student experience.
-    - **Department Enrollment Breakdown**: Quickly visualize the distribution of enrollments by department to identify growing or shrinking areas.
-    - **Term Comparison**: Identify whether Spring or Fall terms tend to have more applications, admissions, and enrollments.
-    - **Trends Across Departments**: Compare how enrollments, retention, and satisfaction evolve across departments.
+    - **Bar Chart of Applications, Admissions, and Enrollments**: Provides an easy-to-read comparison of metrics for a specific term.
+    - **Area Plot for Retention Rates**: Visualizes trends in retention rates over time, allowing for better understanding of student retention.
+    - **Bar Plot for Satisfaction Scores**: Offers a clearer way to compare satisfaction scores by year.
+    - **Pie Chart for Department Enrollment**: Displays the distribution of enrollments by department.
+    - **Stacked Bar Chart for Term Comparison**: Highlights the differences in key metrics like applications and enrollments between the Spring and Fall terms.
+    - **Heatmap for Departmental Trends and Correlations**: Helps identify relationships between different departments, retention rates, and satisfaction levels.
 """)
