@@ -116,13 +116,3 @@ st.pyplot(fig)
 
 # Key Findings and Actionable Insights
 st.header("Key Findings and Actionable Insights")
-
-# Display insights based on trends
-if total_apps.max() > 10000:
-    st.write("🔔 **Actionable Insight**: The university has seen a significant increase in applications, especially in certain terms. Focus on improving admissions efficiency during peak times.")
-    
-if retention_data['Retention Rate (%)'].mean() < 75:
-    st.write("🔔 **Actionable Insight**: Retention rates are lower than expected. It might be valuable to focus on improving student support and engagement to reduce drop-out rates.")
-
-if satisfaction_data['Student Satisfaction (%)'].mean() < 3.5:
-    st.write("🔔 **Actionable Ins
