@@ -9,11 +9,6 @@ df = pd.read_csv('university_student_dashboard_data.csv')
 # Clean column names (strip extra spaces)
 df.columns = df.columns.str.strip()
 
-# Debug: Show column names and check unique values
-st.write("Columns in dataset:", df.columns)
-st.write("Unique terms:", df['Term'].unique())
-st.write("Unique years:", df['Year'].unique())
-
 # Sidebar for filters
 st.sidebar.header("Filters")
 terms = st.sidebar.multiselect("Select Term(s)", df['Term'].dropna().unique())
@@ -43,11 +38,11 @@ st.write(f"**Average Retention Rate**: {avg_retention_rate:.2f}%")
 st.write(f"**Average Student Satisfaction**: {avg_satisfaction:.2f}%")
 
 # Visualization 1: Total Enrolled by Department
-department_columns = ['Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled']
+department_columns = ['Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled']
 department_data = filtered_data[department_columns].sum()
 
 fig, ax = plt.subplots()
-department_data.plot(kind='bar', ax=ax, color=['blue', 'green', 'red', 'purple'])
+department_data.plot(kind='bar', ax=ax, color=['blue', 'green', 'red'])
 ax.set_title("Total Enrolled by Department")
 ax.set_xlabel("Department")
 ax.set_ylabel("Number of Enrolled Students")
