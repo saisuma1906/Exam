@@ -3,8 +3,12 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Strip any extra spaces from column names and display them to check
-df.columns = df.columns.str.strip()
+# Load dataset from GitHub repository (Replace with your actual raw URL)
+file_url = "https://raw.githubusercontent.com/your-username/your-repository/main/university_student_dashboard_data.csv"
+df = pd.read_csv(file_url)
+
+# Check and clean column names (Remove any leading/trailing spaces)
+df.columns = [col.strip() for col in df.columns]
 
 # Display the column names to check
 st.write("Column names in dataset:", df.columns)
@@ -121,4 +125,4 @@ if retention_data['Retention Rate (%)'].mean() < 75:
     st.write("🔔 **Actionable Insight**: Retention rates are lower than expected. It might be valuable to focus on improving student support and engagement to reduce drop-out rates.")
 
 if satisfaction_data['Student Satisfaction (%)'].mean() < 3.5:
-    st.write("🔔 **Actionable Insight**: Student satisfaction is below average. Consider enhancing student services, academic offerings, and campus life to improve satisfaction.")
+    st.write("🔔 **Actionable Ins
